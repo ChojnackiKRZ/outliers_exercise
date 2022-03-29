@@ -123,24 +123,16 @@ def outliers_iqr(data: pd.Series) -> pd.Series:
     if type(data) != pd.Series:
         raise TypeError("data must be pd.Series")
     else:
-        IQR = round(data.quantile([0.75])[0.75] - data.quantile([0.25])[0.25], 2)
-        outl_iqr = data[
-            ~(
-                (data > data.quantile([0.25])[0.25] - 1.5 * IQR)
-                & (data < data.quantile([0.75])[0.75] + 1.5 * IQR)
-            )
-        ]
-        data = data[
-            (
-                (data > data.quantile([0.25])[0.25] - 1.5 * IQR)
-                & (data < data.quantile([0.75])[0.75] + 1.5 * IQR)
-            )
-        ]
+        Q1 = data.quantile([0.25])[0.25]
+        Q3 = data.quantile([0.75])[0.75]
+        IQR = Q3 - Q1
+        outl_iqr = data[~((data > Q1 - 1.5 * IQR) & (data < Q3 + 1.5 * IQR))]
+        data = data[((data > Q1 - 1.5 * IQR) & (data < Q3 + 1.5 * IQR))]
         return data
 
 
 # d) Z-SCORE
-def outliers_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
+def outliers_zscore(data: pd.Series, thresh: float = 2) -> pd.Series:
     """Function returns pd.Series with outliers and data without outliers
     based on Z-Score.
     """
