@@ -79,7 +79,7 @@ def outliers_percentiles(data: pd.Series, f_quant: float, s_quant: float) -> pd.
     '''Function returns pd.Series with outliers and data without outliers
     based on percentiles.
     '''
-    global outlier
+    global outliers
     if type(data) != pd.Series:
         raise TypeError ('data must be pd.Series')
     elif type (f_quant) != float or type (s_quant) != float:
@@ -87,20 +87,38 @@ def outliers_percentiles(data: pd.Series, f_quant: float, s_quant: float) -> pd.
     elif f_quant >= s_quant:
         raise ValueError ('First quantile cannot be equal/greater than second')
     else:
-        outlier = data[~((data > data.quantile([f_quant])[f_quant]) & (data < data.quantile([s_quant])[s_quant]))]
+        outliers = data[~((data > data.quantile([f_quant])[f_quant]) & (data < data.quantile([s_quant])[s_quant]))]
         return data[(data > data.quantile([f_quant])[f_quant]) & (data < data.quantile([s_quant])[s_quant])]
 
 #c) IQR
-iqr = {k: v['IQR'] for (k,v) in stats.items()}
-num_df['Rooms'][~((df.Rooms < stats['Rooms']['quantiles'][0.25] - 1.5 * stats['Rooms']['IQR']) | (df.Rooms > stats['Rooms']['quantiles'][0.75] + 1.5 * stats['Rooms']['IQR']))]
+def outliers_iqr(data: pd.Series) -> pd.Series:
+    
+    '''Function returns pd.Series with outliers and data without outliers
+    based on IQR.
+    '''
+    global outliers
+    if type(data) != pd.Series:
+        raise TypeError ('data must be pd.Series')
+    else:
+        IQR = round (data.quantile([0.75])[0.75] - data.quantile([0.25])[0.25], 2)
+        outliers = data[~((data > data.quantile([0.25])[0.25] - 1.5 * IQR) & (data < data.quantile([0.75])[0.75] + 1.5 * IQR))]
+        return data[((data > data.quantile([0.25])[0.25] - 1.5 * IQR) & (data < data.quantile([0.75])[0.75] + 1.5 * IQR))]
+
 
 #d) Z-SCORE
-for col in num_df.columns:
-    col_zscore = col + '_zscore'
-    num_df[col_zscore] = (num_df[col] - num_df[col].mean())/num_df[col].std(ddof=0)
+def outliers_zscore(data: pd.Series) -> pd.Series:
+    '''Function returns pd.Series with outliers and data without outliers
+    based on Z-Score.
+    '''
+    if type(data) != pd.Series:
+        raise TypeError ('data must be pd.Series')
+    else:
+        global outliers
+        z_score = abs (scipy.stats.zscore(data))
+        outliers = z_score[z_score >= 2] 
+        return abs (scipy.stats.zscore(num_df['Rooms'])) < 2
 
-z_score = num_df.apply(scipy.stats.zscore)
-
+#%%
 #e) MOD Z-SCORE
 #outliers = -3.5>= & 3.5<= or abs mod_z = 3.5
 import numpy as np
