@@ -23,14 +23,14 @@ os.chdir(path)
 df = pd.read_csv('houses_data.csv')
 desc = df.describe()
 
-def make_boxplot(welldata, inputs):
+def make_boxplot(data, inputs):
 
     num_inputs = len(inputs)
 
     fig, axs = plt.subplots(1, num_inputs, figsize=(20,10))
 
     for i, (ax, curve) in enumerate(zip(axs.flat, inputs), 1):
-        sns.boxplot(y=welldata[curve], ax=ax, color='cornflowerblue', showmeans=True,  
+        sns.boxplot(y=data[curve], ax=ax, color='cornflowerblue', showmeans=True,  
                 meanprops={"marker":"o",
                            "markerfacecolor":"white", 
                            "markeredgecolor":"black",
@@ -49,10 +49,49 @@ numerics = ["int16", "int32", "int64", "float16", "float32", "float64"]
 num_df = df.select_dtypes(include=numerics)
 
 inputs = list(num_df.columns)
-inputs.pop(0) # remove the well name from the columns list
-
 make_boxplot(num_df, inputs)
 
-quantiles = {}
-for col in num_df:
-    quantiles[col] = num_df[col].quantile([0.25, 0.75])
+stats = {}
+for col in num_df.columns:
+    stats[col] = {'quantiles' : num_df[col].quantile([0.25, 0.75]),
+                  'IQR' : float(num_df[col].quantile([0.75])) - float (num_df[col].quantile([0.25])),
+                  'std' : round(num_df[col].std(), 2)}
+
+#%%
+# Zadanie główne:
+
+#1.Napisz funkcję, które będą usuwały wartości odstające przy wykorzystaniu:
+#   a) log transform
+#   b) removing 0.1 & 0.9 percentile
+#   c) IQR
+#   d) z-score (2 i/lub 3 SD)
+#   e) modified Z-score
+
+#2.Porównaj wyniki przez:
+#   a) policzenie liczby wystąpień wartości odstających,
+#   b) wyznaczenie MAE (kod z poprzednich zajęć)
+
+#c) IQR
+iqr = {k: v['IQR'] for (k,v) in stats.items()}
+df < (Q1 - 1.5 * IQR))|(df > (Q3 + 1.5 * IQR)
+
+
+#d) Z-SCORE
+for col in num_df.columns:
+    col_zscore = col + '_zscore'
+    num_df[col_zscore] = (num_df[col] - num_df[col].mean())/num_df[col].std(ddof=0)
+
+z_score = num_df.apply(scipy.stats.zscore)
+
+#e) MOD Z-SCORE
+#outliers = -3.5>= & 3.5<= or abs mod_z = 3.5
+import numpy as np
+
+def mod_z(col: pd.DataFrame, thresh: float=3.5) -> pd.DataFrame:
+    med_col = col.median()
+    med_abs_dev = (np.abs(col - med_col)).median()
+    mod_z = 0.6745 * ((col - med_col) / med_abs_dev)
+    mod_z = mod_z[np.abs(mod_z) < thresh]
+    return np.abs(mod_z)
+
+
