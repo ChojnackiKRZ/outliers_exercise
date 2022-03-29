@@ -12,6 +12,11 @@ import seaborn as sns
 import scipy
 import os
 
+# Zadania wstępne:
+# Dla 3 kolumn o numerycznych wartościach przedstaw:
+# 1.box plot
+# 2.wyznacz Q1, Q3, IQR oraz SD (standard dev.)
+
 path = r'C:\Users\krzys\Desktop\data science\IV semestr\machine_learning\outliers_exercise'
 os.chdir(path)
 
@@ -47,3 +52,7 @@ inputs = list(num_df.columns)
 inputs.pop(0) # remove the well name from the columns list
 
 make_boxplot(num_df, inputs)
+
+quantiles = {}
+for col in num_df:
+    quantiles[col] = num_df[col].quantile([0.25, 0.75])
