@@ -53,7 +53,7 @@ make_boxplot(num_df, inputs)
 
 stats = {}
 for col in num_df.columns:
-    stats[col] = {'quantiles' : num_df[col].quantile([0.25, 0.75]),
+    stats[col] = {'quantiles' : num_df[col].quantile([0.1, 0.25, 0.75, 0.9]),
                   'IQR' : float(num_df[col].quantile([0.75])) - float (num_df[col].quantile([0.25])),
                   'std' : round(num_df[col].std(), 2)}
 
@@ -71,10 +71,14 @@ for col in num_df.columns:
 #   a) policzenie liczby wystąpień wartości odstających,
 #   b) wyznaczenie MAE (kod z poprzednich zajęć)
 
+#a) log transform: ?
+
+#b) percentiles
+num_df['Rooms'][(df['Rooms'] > stats['Rooms']['quantiles'][0.1]) & (df['Rooms'] < stats['Rooms']['quantiles'][0.9])]
+
 #c) IQR
 iqr = {k: v['IQR'] for (k,v) in stats.items()}
-df < (Q1 - 1.5 * IQR))|(df > (Q3 + 1.5 * IQR)
-
+num_df['Rooms'][~((df.Rooms < stats['Rooms']['quantiles'][0.25] - 1.5 * stats['Rooms']['IQR']) | (df.Rooms > stats['Rooms']['quantiles'][0.75] + 1.5 * stats['Rooms']['IQR']))]
 
 #d) Z-SCORE
 for col in num_df.columns:
