@@ -161,7 +161,7 @@ def otuliers_mod_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
         raise TypeError("data must be pd.Series")
     else:
         med_col = data.median()
-        med_abs_dev = (np.abs(data - med_col)).median()
+        med_abs_dev = data.mad()
         mod_z = 0.6745 * ((data - med_col) / med_abs_dev)
         mod_z = mod_z[np.abs(mod_z) < thresh]
         outl_mod_zscore = data[data >= thresh]
