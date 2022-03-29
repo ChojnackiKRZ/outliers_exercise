@@ -119,12 +119,12 @@ def outliers_iqr(data: pd.Series) -> pd.Series:
     based on IQR.
     """
     
-    global outliers_iqr
+    global outl_iqr
     if type(data) != pd.Series:
         raise TypeError("data must be pd.Series")
     else:
         IQR = round(data.quantile([0.75])[0.75] - data.quantile([0.25])[0.25], 2)
-        outliers_iqr = data[
+        outl_iqr = data[
             ~(
                 (data > data.quantile([0.25])[0.25] - 1.5 * IQR)
                 & (data < data.quantile([0.75])[0.75] + 1.5 * IQR)
@@ -145,12 +145,12 @@ def outliers_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
     based on Z-Score.
     """
     
-    global outliers_zscore
+    global outl_zscore
     if type(data) != pd.Series:
         raise TypeError("data must be pd.Series")
     else:
         z_score = abs(scipy.stats.zscore(data))
-        outliers_zscore = data[z_score >= thresh]
+        outl_zscore = data[z_score >= thresh]
         return data[z_score < thresh]
 
 
@@ -159,12 +159,12 @@ def outliers_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
 import numpy as np
 
 
-def otuliers_md_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
+def otuliers_mod_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
     """Function returns pd.Series with outliers and data without outliers
     based on modified Z-Score.
     """
 
-    global outliers_mod_zscore
+    global outl_mod_zscore
     if type(data) != pd.Series:
         raise TypeError("data must be pd.Series")
     else:
@@ -172,7 +172,7 @@ def otuliers_md_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
         med_abs_dev = (np.abs(data - med_col)).median()
         mod_z = 0.6745 * ((data - med_col) / med_abs_dev)
         mod_z = mod_z[np.abs(mod_z) < thresh]
-        outliers_mod_zscore = data[data >= thresh]
+        outl_mod_zscore = data[data >= thresh]
         return data[data < thresh]
 
 #%%
@@ -186,3 +186,35 @@ df_4 = pd.DataFrame()
 
 for col in num_df.columns:
     outliers_iqr(num_df['Rooms'])
+#%%
+outliers_iqr(num_df['Rooms'])
+
+#%%
+num_df['Rooms']
+
+#%%
+df_1.count(axis = 0)
+
+#%%
+outliers_percentiles(num_df[col], 0.1, 0.9)
+outliers_zscore(num_df[col])
+otuliers_md_zscore(num_df[col])
+
+#%%
+data = num_df['Rooms']
+
+type (data)
+
+IQR = round(data.quantile([0.75])[0.75] - data.quantile([0.25])[0.25], 2)
+outliers_iqr = data[
+    ~(
+        (data > data.quantile([0.25])[0.25] - 1.5 * IQR)
+        & (data < data.quantile([0.75])[0.75] + 1.5 * IQR)
+    )
+]
+a = data[
+    (
+        (data > data.quantile([0.25])[0.25] - 1.5 * IQR)
+        & (data < data.quantile([0.75])[0.75] + 1.5 * IQR)
+    )
+]
