@@ -53,7 +53,7 @@ make_boxplot(num_df, inputs)
 
 stats = {}
 for col in num_df.columns:
-    stats[col] = {'quantiles' : num_df[col].quantile([0.1, 0.25, 0.75, 0.9]),
+    stats[col] = {'quantiles' : num_df[col].quantile([0.25, 0.75]),
                   'IQR' : float(num_df[col].quantile([0.75])) - float (num_df[col].quantile([0.25])),
                   'std' : round(num_df[col].std(), 2)}
 
@@ -74,7 +74,21 @@ for col in num_df.columns:
 #a) log transform: ?
 
 #b) percentiles
-num_df['Rooms'][(df['Rooms'] > stats['Rooms']['quantiles'][0.1]) & (df['Rooms'] < stats['Rooms']['quantiles'][0.9])]
+def outliers_percentiles(data: pd.Series, f_quant: float, s_quant: float) -> pd.Series:
+    
+    '''Function returns pd.Series with outliers and data without outliers
+    based on percentiles.
+    '''
+    global outlier
+    if type(data) != pd.Series:
+        raise TypeError ('data must be pd.Series')
+    elif type (f_quant) != float or type (s_quant) != float:
+        raise TypeError ('First quantile and second quantile must be float')
+    elif f_quant >= s_quant:
+        raise ValueError ('First quantile cannot be equal/greater than second')
+    else:
+        outlier = data[~((data > data.quantile([f_quant])[f_quant]) & (data < data.quantile([s_quant])[s_quant]))]
+        return data[(data > data.quantile([f_quant])[f_quant]) & (data < data.quantile([s_quant])[s_quant])]
 
 #c) IQR
 iqr = {k: v['IQR'] for (k,v) in stats.items()}
@@ -99,3 +113,6 @@ def mod_z(col: pd.DataFrame, thresh: float=3.5) -> pd.DataFrame:
     return np.abs(mod_z)
 
 
+#%%
+a = num_df['Rooms']
+b = a.quantile([0.1])[0.1]
