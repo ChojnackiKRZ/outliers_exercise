@@ -175,46 +175,26 @@ def otuliers_mod_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
         outl_mod_zscore = data[data >= thresh]
         return data[data < thresh]
 
-#%%
+
 #porównanie metryk
 indexes = ['out_perc', 'out_iqr', 'out_zscore', 'out_mzscore']
 summary = pd.DataFrame(index = indexes)
-df_1 = pd.DataFrame()
-df_2 = pd.DataFrame()
-df_3 = pd.DataFrame()
-df_4 = pd.DataFrame()
 
 for col in num_df.columns:
-    outliers_iqr(num_df['Rooms'])
-#%%
-outliers_iqr(num_df['Rooms'])
+    summary[col] = int()
 
-#%%
-num_df['Rooms']
+for index in range (0, len (indexes)):
+    for col in num_df.columns:
+        if index == 0:
+            outliers_percentiles(num_df[col], 0.1, 0.9)
+            summary[col].loc[indexes[index]] = len (outliers_perc)
+        elif index == 1:
+            outliers_iqr(num_df[col])
+            summary[col].loc[indexes[index]] = len (outl_iqr)
+        elif index == 2:
+            outliers_zscore(num_df[col])
+            summary[col].loc[indexes[index]] = len (outl_zscore)
+        elif index == 3:
+            otuliers_mod_zscore(num_df[col])
+            summary[col].loc[indexes[index]] = len (outl_mod_zscore)
 
-#%%
-df_1.count(axis = 0)
-
-#%%
-outliers_percentiles(num_df[col], 0.1, 0.9)
-outliers_zscore(num_df[col])
-otuliers_md_zscore(num_df[col])
-
-#%%
-data = num_df['Rooms']
-
-type (data)
-
-IQR = round(data.quantile([0.75])[0.75] - data.quantile([0.25])[0.25], 2)
-outliers_iqr = data[
-    ~(
-        (data > data.quantile([0.25])[0.25] - 1.5 * IQR)
-        & (data < data.quantile([0.75])[0.75] + 1.5 * IQR)
-    )
-]
-a = data[
-    (
-        (data > data.quantile([0.25])[0.25] - 1.5 * IQR)
-        & (data < data.quantile([0.75])[0.75] + 1.5 * IQR)
-    )
-]
