@@ -92,7 +92,7 @@ def outliers_percentiles(data: pd.Series, f_quant: float, s_quant: float) -> pd.
     """Function returns pd.Series with outliers and data without outliers
     based on percentiles.
     """
-    
+
     global outliers_perc
     if type(data) != pd.Series:
         raise TypeError("data must be pd.Series")
@@ -118,7 +118,7 @@ def outliers_iqr(data: pd.Series) -> pd.Series:
     """Function returns pd.Series with outliers and data without outliers
     based on IQR.
     """
-    
+
     global outl_iqr
     if type(data) != pd.Series:
         raise TypeError("data must be pd.Series")
@@ -144,7 +144,7 @@ def outliers_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
     """Function returns pd.Series with outliers and data without outliers
     based on Z-Score.
     """
-    
+
     global outl_zscore
     if type(data) != pd.Series:
         raise TypeError("data must be pd.Series")
@@ -176,25 +176,23 @@ def otuliers_mod_zscore(data: pd.Series, thresh: float = 3.5) -> pd.Series:
         return data[data < thresh]
 
 
-#porównanie metryk
-indexes = ['out_perc', 'out_iqr', 'out_zscore', 'out_mzscore']
-summary = pd.DataFrame(index = indexes)
+# porównanie metryk
+indexes = ["out_perc", "out_iqr", "out_zscore", "out_mzscore"]
+summary = pd.DataFrame(index=indexes)
 
 for col in num_df.columns:
     summary[col] = int()
-
-for index in range (0, len (indexes)):
+for index in range(0, len(indexes)):
     for col in num_df.columns:
         if index == 0:
             outliers_percentiles(num_df[col], 0.1, 0.9)
-            summary[col].loc[indexes[index]] = len (outliers_perc)
+            summary[col].loc[indexes[index]] = len(outliers_perc)
         elif index == 1:
             outliers_iqr(num_df[col])
-            summary[col].loc[indexes[index]] = len (outl_iqr)
+            summary[col].loc[indexes[index]] = len(outl_iqr)
         elif index == 2:
             outliers_zscore(num_df[col])
-            summary[col].loc[indexes[index]] = len (outl_zscore)
+            summary[col].loc[indexes[index]] = len(outl_zscore)
         elif index == 3:
             otuliers_mod_zscore(num_df[col])
-            summary[col].loc[indexes[index]] = len (outl_mod_zscore)
-
+            summary[col].loc[indexes[index]] = len(outl_mod_zscore)
